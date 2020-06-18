@@ -1,209 +1,173 @@
-import Head from 'next/head'
+import React from 'react'
+import { Typography, Container, makeStyles, TextField, Button, Grid, Backdrop, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Paper } from "@material-ui/core";
+import Link from '../src/Link'
+import Head from 'next/head';
+import { isEmail } from 'validator'
 
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  image: { margin: theme.spacing(1), height: "10vw", padding: theme.spacing(2, 0), [theme.breakpoints.down('sm')]: { height: 100 } },
+  form: { width: '100%', marginTop: theme.spacing(1), padding: theme.spacing(3), background: "#E6F4FF", borderRadius: 20 },
+  submit: { margin: theme.spacing(3, 0, 2) },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}))
 export default function Home() {
+  const classes = useStyles()
+  const [values, setValues] = React.useState({
+    email: "",
+    password: ""
+  })
+  const [errors, setErrors] = React.useState({
+    email: false,
+    password: false,
+    email_err: "",
+    password_err: "",
+  })
+  const [forgotPass, setForgotPass] = React.useState({
+    open: false,
+    email: ""
+  })
+  const [loading, setLoading] = React.useState(false)
+  const handleChange = (e) => {
+    setErrors({ ...errors, [e.target.name]: false, [e.target.name + '_err']: "" })
+    setValues({ ...values, [e.target.name]: e.target.value })
+  }
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!values.email) return setErrors({ ...errors, email: true, email_err: `Email is required` })
+    if (!values.password) return setErrors({ ...errors, password: true, password_err: `Password is required` })
+    if (!isEmail(values.email)) return setErrors({ ...errors, email: true, email_err: `Please enter a valid email` })
+    // handle login logic here
+    setLoading(true)
+    setTimeout(() => {
+      window.location.replace('/app')
+    }, 2000);
+
+  }
+  const handleClose = () => {
+    setForgotPass({ ...forgotPass, open: false })
+  }
+  const handleForgotPass = (e) => {
+    setForgotPass({ ...forgotPass, email: e.target.value })
+  }
   return (
-    <div className="container">
+    <>
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>MBDO Cargo Express Forwarding Services Inc.</title>
       </Head>
+      <Backdrop className={classes.backdrop} open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <Container component="main" maxWidth="sm">
+        <div className={classes.paper}>
+          <img src="/images/mbdo_logo.png" alt="mbdo_logo" className={classes.image} />
 
-      <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
-
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          <Paper component="form" className={classes.form} onSubmit={handleSubmit} elevation={0}>
+            <Typography component="h1" variant="h6">
+              Sign in to your MBDO Account
+              </Typography>
+            <TextField
+              value={values.email}
+              onChange={handleChange}
+              error={errors.email}
+              helperText={errors.email ? errors.email_err : null}
+              variant="outlined"
+              margin="normal"
+              type="email"
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              value={values.password}
+              onChange={handleChange}
+              error={errors.password}
+              helperText={errors.password ? errors.password_err : null}
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              size="large"
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              className={classes.submit}
+            >
+              Sign In
+          </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="/" onClick={() => setForgotPass({ ...forgotPass, open: true })} variant="body2">
+                  Forgot password?
+              </Link>
+              </Grid>
+            </Grid>
+          </Paper>
         </div>
-      </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
+        <ForgotPass {...forgotPass} handleClose={handleClose} handleForgotPass={handleForgotPass} />
+      </Container>
+    </>
   )
 }
+
+const ForgotPass = ({ open, email, handleClose, handleForgotPass }) => {
+  const dialogForm = {
+    title: "Forgot Your Password?",
+    text: "Don't worry resetting your password is easy. Just tell as the email address you registered with MBDO.",
+    textfield: true,
+    subtext: ``,
+    subtext2: `Didn't receive the email yet? Please check your spam folder.`
+  }
+  const [dialog, setDialog] = React.useState(dialogForm)
+  const handleSubmit = () => {
+    setDialog({ ...dialog, title: "Reset Your Password", textfield: false, subtext: `We have sent a reset password email to ${email}. Please click the reset password link to set your new password.` })
+  }
+  return (
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>{dialog.title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {dialog.textfield ? dialog.text : dialog.subtext}
+        </DialogContentText>
+        {dialog.textfield && <TextField
+          autoFocus
+          margin="dense"
+          label="Email Address"
+          name="email"
+          type="email"
+          value={email}
+          onChange={handleForgotPass}
+          fullWidth
+        />}
+        {!dialog.textfield && (
+          <div>
+            <Typography>{dialog.subtext2}</Typography>
+          </div>
+        )}
+      </DialogContent>
+      <DialogActions>
+        {dialog.textfield ? <> <Button onClick={handleClose} color="primary" variant="outlined">Cancel</Button>
+          <Button onClick={handleSubmit} color="primary" variant="contained">Submit</Button> </> : null}
+      </DialogActions>
+    </Dialog>
+  )
+} 
